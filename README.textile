@@ -1,0 +1,8 @@
+h1. Limitations
+
+The base table must have a column 'id' which is a sequence.  
+
+
+As a recommendation, the destination should exactly mirror the source table, but with no default values such as sequences.
+
+
