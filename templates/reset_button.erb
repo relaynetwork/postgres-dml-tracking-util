@@ -1,0 +1,11 @@
+DROP TRIGGER <%= @trigger_name %> ON <%= @tracked_table %>;
+DROP TABLE IF EXISTS <%= @dml_table %>;
+DROP FUNCTION IF EXISTS <%= @fn_signature %> ;
+
+DROP FUNCTION IF EXISTS compute_export_column_order_fn( p_schema_name varchar, p_table_name varchar );
+
+DROP FUNCTION IF EXISTS dml_export_table( p_target_host varchar, p_target_db varchar, p_schema_name varchar, p_table_name varchar, p_export_path varchar, p_txn_id bigint );
+DROP FUNCTION IF EXISTS dml_export_table_range( p_schema_name varchar, p_table_name varchar, p_min_dml_id bigint, p_max_dml_id bigint, p_export_path varchar );
+DROP FUNCTION IF EXISTS dml_import_table( p_txn_id bigint, p_schema_name varchar, p_table_name varchar,  p_import_path varchar );
+
+

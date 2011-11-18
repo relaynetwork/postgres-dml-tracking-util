@@ -1,0 +1,19 @@
+CREATE SEQUENCE <%= @sequence %>
+ START WITH 1
+ INCREMENT BY 1
+ NO MINVALUE
+ NO MAXVALUE
+ CACHE 1;
+
+CREATE TABLE <%= @dml_table %> (
+          id bigint primary key NOT NULL DEFAULT nextval('<%= @sequence %>'::regclass),
+          source_id bigint 
+          );
+
+
+
+GRANT ALL ON <%= @dml_table %> TO PUBLIC;
+ALTER TABLE <%= @dml_table %>  OWNER TO rails;
+ALTER TABLE <%= @sequence %> OWNER TO rails;
+ALTER SEQUENCE <%= @sequence %> OWNED BY <%= @dml_table %>.id;
+

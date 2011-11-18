@@ -1,0 +1,24 @@
+CREATE OR REPLACE FUNCTION <%= @fn_signature %> RETURNS trigger AS
+   $$
+   DECLARE
+   BEGIN
+      IF TG_OP = 'INSERT' THEN
+        INSERT INTO <%= @dml_table %> (source_id)  VALUES ( NEW.id ); 
+        RETURN NEW;
+      ELSIF TG_OP = 'DELETE' THEN
+        INSERT INTO <%= @dml_table %> (source_id)  VALUES ( OLD.id ); 
+        RETURN OLD;
+      ELSE --update
+        IF OLD.id != NEW.id THEN
+          INSERT INTO <%= @dml_table %> (source_id)  VALUES ( NEW.id ); 
+          INSERT INTO <%= @dml_table %> (source_id)  VALUES ( OLD.id ); 
+        ELSE
+          INSERT INTO <%= @dml_table %> (source_id)  VALUES ( NEW.id ); 
+        END IF;
+        RETURN NEW;
+      END IF;
+   END;
+   $$
+   LANGUAGE 'plpgsql';
+
+

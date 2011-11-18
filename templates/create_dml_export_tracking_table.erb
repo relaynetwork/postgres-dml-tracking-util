@@ -1,0 +1,21 @@
+CREATE SEQUENCE <%= sequence %>
+  START WITH 1 
+  INCREMENT BY 1 
+  NO MINVALUE 
+  NO MAXVALUE 
+  CACHE 1;   
+
+CREATE TABLE <%= schema %>.<%= table %>( 
+    id bigint primary key NOT NULL DEFAULT nextval('rn_db.dml_export_tracking_id_seq'::regclass),
+    created_at timestamp without time zone  DEFAULT now(),                                                                
+    updated_at timestamp without time zone  DEFAULT now(), 
+    txn_id bigint, 
+    dml_table_name, 
+    dml_last_export_id bigint
+)          
+
+GRANT ALL ON <%= schema %>.<%= table %> TO PUBLIC;
+ALTER TABLE <%= schema %>.<%=table %>  OWNER TO rails;
+ALTER TABLE <%= schema %>.<%=table %> OWNER TO rails;
+ALTER SEQUENCE <%= sequence %> OWNED BY <%= schema%>.<%= table %>.id;
+
