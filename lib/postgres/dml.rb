@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'erb'
+require 'fileutils'
 
 class PostgresDML
     def initialize schema, table
@@ -17,55 +18,63 @@ class PostgresDML
       @fn_signature = "#{@dml_trigger_fn}()"
       @trigger_name = "#{@table}_dml_trigger"
 
-      @export_sql_file = File.new( File.join( @project_dir, "export_side.sql" ), 'w' )
-      @import_sql_file = File.new( File.join( @project_dir, "import_side.sql" ), 'w' )
+      @export_sql_dir =  File.join( @project_dir, "export-side" )
+      @import_sql_dir =  File.join( @project_dir, "export-side" )
+
+      File.exists?( @export_sql_dir ) || FileUtils.mkdir(  @export_sql_dir )
+      File.exists?( @export_sql_dir ) ||  FileUtils.mkdir(  @import_sql_dir )
     end
 
     def create_dml_table
       sql = ERB.new( File.read(File.join(@template_dir, 'create_dml_table.erb' ) ) ).result(binding) 
-      #outf = File.new( File.join( @project_dir, "create_#{@dml_table}_table.sql" ), 'w' )
-      #@export_sql_file.puts sql
-      #@import_sql_file.puts sql
+      outf = File.new( File.join( @export_sql_dir, "create_#{@dml_table}_table.sql" ), 'w' )
+      outf.puts sql
       puts sql
+
+      #@import_sql_dir_file.puts sql
     end
 
     def create_dml_trigger_fn
       sql = ERB.new( File.read(File.join(@template_dir, 'dml_trigger_fn.erb' ) ) ).result(binding) 
-      #@export_sql_file.puts sql
+      outf = File.new( File.join( @export_sql_dir, "create_#{ @dml_trigger_fn }.sql" ), 'w' )
+      outf.puts sql
       puts sql
     end
 
     def create_dml_triggers
       sql = ERB.new( File.read(File.join(@template_dir, 'dml_trigger.erb' ) ) ).result(binding) 
-      #@export_sql_file.puts sql
+      outf = File.new( File.join( @export_sql_dir, "create_#{@trigger_name}.sql" ), 'w' )
+      outf.puts sql
       puts sql
     end
 
     def create_reset_button
       sql = ERB.new( File.read(File.join(@template_dir, 'reset_button.erb' ) ) ).result(binding) 
-      #outf = File.new( File.join( @project_dir, "#{@tracked_table}_reset_button.sql" ), 'w' )
-      #outf.puts sql
       puts sql
     end
 
     def create_compute_export_column_order_fn
       sql = File.read(File.join(@files_dir, 'compute_export_column_order_fn.sql')) 
-      #@export_sql_file.puts sql
+      outf = File.new( File.join( @export_sql_dir, "compute_export_column_order.sql" ), 'w' )
+      outf.puts sql
       puts sql
     end
 
     def create_export_fns
       sql = File.read(File.join(@files_dir, 'dml_export_table_range_fn.sql')) 
-      #@export_sql_file.puts sql
+      outf = File.new( File.join( @export_sql_dir, "dml_export_table_range.sql" ), 'w' )
+      outf.puts sql
       puts sql
+
       sql = File.read(File.join(@files_dir, 'dml_export_table_fn.sql')) 
-      #@export_sql_file.puts sql
+      outf = File.new( File.join( @export_sql_dir, "dml_export_table.sql" ), 'w' )
+      outf.puts sql
       puts sql
     end
 
     def create_import_fn
       sql = File.read(File.join(@files_dir, 'dml_import_table_fn.sql')) 
-      #@import_sql_file.puts sql
+      #@import_sql_dir_file.puts sql
       puts sql
     end
 

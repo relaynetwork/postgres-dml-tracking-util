@@ -2,5 +2,4 @@ CREATE TRIGGER <%= @trigger_name %>
   BEFORE INSERT OR UPDATE OR DELETE
   ON  <%= @tracked_table %>
   FOR EACH ROW EXECUTE PROCEDURE <%= @dml_trigger_fn %>();
-END;
 
