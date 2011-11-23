@@ -1,8 +1,38 @@
+h1. Overview
+
+This utility will aid you in setting up one or more tables to be regularly exoprted from one "Postgres":http://www.postgresql.org/ databse to another.  The technique here is for replication of records from a table in order to make a table available to another database.  The use case is not the same as for postgres's built in WAL or streaming replication, which create a mirror of the master database.  The need that this fills is to make a table from a primary database available in another database - though as a read only copy.
+
+The tool is based on techniques in "Scalable Internet Architectures":http://amzn.to/tUZ8NT by "Theo Schlossnagle":http://omniti.com/is/theo-schlossnagle for distributing data from a primary database to secondary databases.
+
+h1. How it works
+
+For every table to be transfered, a DML [data modification language] shadow table is created which will track the chagnes to the base table.  A trigger is installed on the base table which will track inserts, updates and deletes - marking them in the DML shadow table.
+
+Exports are then tracked based on a target host and database, keeping a record of the last set of changes which were sent to the target.  Exporting is then done by consulting the export tracking table, determining the set of records from the base table that must be shipped, and the set of effected IDs since the last export.  There will be 3 files exported for each base table: a list of the columns from the base table; the list of ids that were modified since the last exoprt; the current version of records from the base table for the current id set.
+
+On the import side, there are two basic operations: first all the records from the target table are deleted and then the base table records are bulk appended to the table.  Deletes are removed by the first step, updates are handled by first removing the row allowing it to be re-appended, and inserts are handled by the bulk append as well.
+
 h1. Limitations
 
-The base table must have a column 'id' which is a sequence.  
+The base table must have a column 'id' which is based on a sequence.
 
+As a recommendation, the destination should have the same structure the source table, with default values removed (especially sequences).  Target tables may have columns that the source does not have (this is handled by sending the list of columns from the base table along with the exported data).
 
-As a recommendation, the destination should exactly mirror the source table, but with no default values such as sequences.
+h1. Generating the DDL
 
+In order to install the DML shadow table and the triggers and functions, there is a Rakefile that you can use to generate the necessary DDL and Pl/PGSQL code for performing the tracking, exports and imports.
 
+    rake postgres:dml:gen_export_table[schema,table]  # Generate DML for dml_export_tracking table.
+    rake postgres:dml:gen_exporter[schema,table]      # Generate Exporter Tracking Files for table.
+    rake postgres:dml:gen_importer[schema,table]      # Generate Importer Tracking Files for table.
+    rake postgres:dml:gen_reset[schema,table]         # Generate Reset Button.
+
+h1. License
+
+Copyright © 2011 Paul Santa Clara & Kyle Burton
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the ‘Software’), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED ‘AS IS’, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
