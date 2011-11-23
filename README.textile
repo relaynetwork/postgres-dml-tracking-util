@@ -22,10 +22,12 @@ h1. Generating the DDL
 
 In order to install the DML shadow table and the triggers and functions, there is a Rakefile that you can use to generate the necessary DDL and Pl/PGSQL code for performing the tracking, exports and imports.
 
+<pre class="code">
     rake postgres:dml:gen_export_table[schema,table]  # Generate DML for dml_export_tracking table.
     rake postgres:dml:gen_exporter[schema,table]      # Generate Exporter Tracking Files for table.
     rake postgres:dml:gen_importer[schema,table]      # Generate Importer Tracking Files for table.
     rake postgres:dml:gen_reset[schema,table]         # Generate Reset Button.
+</pre>
 
 h1. License
 
