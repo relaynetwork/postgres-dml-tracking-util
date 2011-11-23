@@ -19,19 +19,23 @@ class PostgresDML
       @trigger_name = "#{@table}_dml_trigger"
 
       @export_sql_dir =  File.join( @project_dir, "export-side" )
-      @import_sql_dir =  File.join( @project_dir, "export-side" )
+      @import_sql_dir =  File.join( @project_dir, "import-side" )
 
       File.exists?( @export_sql_dir ) || FileUtils.mkdir(  @export_sql_dir )
-      File.exists?( @export_sql_dir ) ||  FileUtils.mkdir(  @import_sql_dir )
+      File.exists?( @import_sql_dir ) ||  FileUtils.mkdir(  @import_sql_dir )
     end
 
     def create_dml_table
       sql = ERB.new( File.read(File.join(@template_dir, 'create_dml_table.erb' ) ) ).result(binding) 
       outf = File.new( File.join( @export_sql_dir, "create_#{@dml_table}_table.sql" ), 'w' )
       outf.puts sql
+
+
+      outf = File.new( File.join( @import_sql_dir, "create_#{@dml_table}_table.sql" ), 'w' )
+
+      outf.puts sql
       puts sql
 
-      #@import_sql_dir_file.puts sql
     end
 
     def create_dml_trigger_fn
@@ -74,7 +78,8 @@ class PostgresDML
 
     def create_import_fn
       sql = File.read(File.join(@files_dir, 'dml_import_table_fn.sql')) 
-      #@import_sql_dir_file.puts sql
+      outf = File.new( File.join( @import_sql_dir, "dml_import_table_fn.sql" ), 'w' )
+      outf.puts sql
       puts sql
     end
 

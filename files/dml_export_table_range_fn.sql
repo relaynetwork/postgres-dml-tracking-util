@@ -37,7 +37,7 @@ CREATE OR REPLACE FUNCTION dml_export_table_range( p_schema_name varchar, p_tabl
                 TO ''' || l_target_file  ||  '''';
 
 
-      l_target_file := p_export_path || '/columns.txt';
+      l_target_file := p_export_path || '/' || l_export_table || '-columns.txt'; 
       
       EXECUTE 'COPY (SELECT compute_export_column_order_fn( ''' || p_schema_name || ''',''' ||  p_table_name || ''')) 
                        TO ''' || l_target_file || '''' 
