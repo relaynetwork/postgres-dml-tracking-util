@@ -12,7 +12,7 @@ CREATE TABLE <%= schema %>.<%= table %>(
     txn_id bigint, 
     dml_table_name character varying(255), 
     dml_last_export_id bigint
-)          
+);
 
 GRANT ALL ON <%= schema %>.<%= table %> TO PUBLIC;
 ALTER TABLE <%= schema %>.<%=table %>  OWNER TO rails;
